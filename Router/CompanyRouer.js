@@ -8,6 +8,7 @@ companyrouter.route('/register').post(controller.companyregister);
 companyrouter.route('/verifyotp').post(controller.verifyOTP);
 companyrouter.route("/login").post(controller.login)
 
+companyrouter.route("/addrole").post(controller.addRole)
 
 
 

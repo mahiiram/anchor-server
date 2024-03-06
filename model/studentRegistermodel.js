@@ -18,6 +18,10 @@ export const studentSchema = new mongoose.Schema({
         required : true,
         unique: true,
     },
+    appliedroles:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Role'
+    }],
     otp:{
         type:String
     },

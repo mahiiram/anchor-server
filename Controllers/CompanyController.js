@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import otpGenerator from 'otp-generator'
 
 import dotenv from 'dotenv';
+import rolemodel from '../model/roleschema.js';
 
 const env = dotenv.config(); 
 
@@ -124,4 +125,24 @@ export async function login(req, res, next) {
         email: existingCompany.email
     })
 
+}
+
+
+export async function addRole (req,res){
+    const { name, minCTC, maxCTC, location, companyId } = req.body;
+   let roleCost = name.length + minCTC.length + maxCTC.length + location.length
+    
+    const company = await companyModel.findById(companyId)
+    console.log(company)
+  
+      if (!company || company.balance < roleCost ) {
+        return res.status(400).send({ error: 'Insufficient balance to post job' });   
+        }   
+     company.balance -= roleCost; 
+    await company.save();
+    const newrole = new rolemodel({ name, minCTC, maxCTC, location, companyId: companyId });
+    await newrole.save();
+    return res.status(200).json({
+        newrole
+    })
 }

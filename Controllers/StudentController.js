@@ -5,6 +5,8 @@ import nodemailer from 'nodemailer';
 import otpGenerator from 'otp-generator'
 
 import dotenv from 'dotenv';
+import companyModel from '../model/CompanyRegistermodel.js';
+import rolemodel from '../model/roleschema.js';
 
 const env = dotenv.config(); 
 
@@ -124,4 +126,67 @@ export async function login(req, res, next) {
         email: existingStudent.email
     })
 
+}
+
+
+export async function applyRole(req,res){
+  const { studentId, roleId } = req.body;
+
+  const student = await studentModel.findById(studentId);
+  const role = await rolemodel.findById(roleId).populate('companyId');
+
+  console.log(role)
+
+  if (!student || student.balance < calculateCost(role.name, role.minCTC, role.maxCTC, role.location)) {
+    return res.status(400).send({ error: 'Insufficient balance to apply for job' });
+  }
+
+  student.balance -= calculateCost(role.name, role.minCTC, role.maxCTC, role.location);
+  student.appliedroles.push(roleId);
+  await student.save();
+
+  const company = await companyModel.findById(role.companyId);
+  console.log(company)
+  company.balance += calculateCost(role.name, role.minCTC, role.maxCTC, role.location);
+  await company.save();
+
+  const trans = {
+    studentName: student.name,
+    roleName: role.name,
+    cost: calculateCost(role.name, role.minCTC, role.maxCTC, role.location)
+  };
+
+  sendEmailNotification(role.companyId.name,role.name, student.name,student.email);
+
+  res.send(trans);
+}
+
+
+function calculateCost(name, minCTC, maxCTC, location) {
+  return name.length + minCTC.toString().length + maxCTC.toString().length + location.length;
+}
+
+function sendEmailNotification(companyName,roleName,studentName,studentEmail) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL,
+      pass: process.env.PASSWORD
+    }
+  });
+
+  const mailOptions = {
+    from:process.env.EMAIL,
+    to: studentEmail,
+    subject: `New Application for ${roleName}`,
+    text: `Student ${studentName} has applied for the role ${roleName} at ${companyName}.`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
 }

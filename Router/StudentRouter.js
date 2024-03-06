@@ -8,7 +8,7 @@ studentrouter.route('/register').post(controller.studentregister);
 studentrouter.route('/verifyotp').post(controller.verifyOTP);
 studentrouter.route("/login").post(controller.login)
 
-
+studentrouter.route("/applyrole").post(controller.applyRole)
 
 
 
