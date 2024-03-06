@@ -10,9 +10,10 @@ import rolemodel from '../model/roleschema.js';
 const env = dotenv.config(); 
 
 export async function companyregister (req,res){
-    const { name, email, password,logo } = req.body;
-
+  
     try {
+      const { name, email, password,logo } = req.body;
+      
       let user = await companyModel.findOne({ email });
   
       if (user) {
@@ -57,6 +58,7 @@ export async function companyregister (req,res){
   
       res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: 'Server error' });
     }
 

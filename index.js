@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import studentrouter from './Router/StudentRouter.js';
 import companyrouter from './Router/CompanyRouer.js';
+import bodyParser from 'body-parser';
 
 
 const env = dotenv.config()
@@ -13,6 +14,10 @@ const app = express();
 /** middlewares */
 app.use(express.json());
 app.use(cors({ origin: true, credentials: true }));
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
 app.use(morgan('tiny'));
 app.disable('x-powered-by'); // less hackers know about our stack
 
