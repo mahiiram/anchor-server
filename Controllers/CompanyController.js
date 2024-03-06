@@ -78,7 +78,8 @@ export async function verifyOTP (req,res){
       }
   
       if (new Date() > user.otpExpiration) {
-        return res.status(400).json({ message: 'OTP expired' });
+        const deleteEmail = companyModel.deleteOne({email})
+        return res.status(400).json({ message: 'OTP expired' }); 
       }
   
       const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY, {
@@ -145,4 +146,40 @@ export async function addRole (req,res){
     return res.status(200).json({
         newrole
     })
+}
+
+
+export async function getUser(req,res){
+  try {
+    const { email } = req.params;
+    const user = await companyModel.findOne({ email }).select('-password'); // Exclude the password field
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Return the user object without the password field
+    res.status(200).json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+
+}
+
+
+export async function getallcompanyRoles(req,res){
+  
+   try {
+    const {companyId} = req.params;
+    const roles = await rolemodel.findById({companyId}).populate('company')
+    if (!roles) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(roles)
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'Server Error' });
+   }
+  
 }
