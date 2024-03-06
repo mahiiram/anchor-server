@@ -9,7 +9,7 @@ import rolemodel from '../model/roleschema.js';
 
 const env = dotenv.config(); 
 
-export async function companyregister (req,res,next){
+export async function companyregister (req,res){
     const { name, email, password,logo } = req.body;
 
     try {
@@ -22,7 +22,6 @@ export async function companyregister (req,res,next){
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
   
-    //   const otp = Math.floor(100000 + Math.random() * 900000);
      const otp = otpGenerator.generate(6, { lowerCaseAlphabets: false, upperCaseAlphabets: false, specialChars: false })
       const otpExpiration = new Date();
       otpExpiration.setMinutes(otpExpiration.getMinutes() + 10);
@@ -170,16 +169,24 @@ export async function getUser(req,res){
 
 export async function getallcompanyRoles(req,res){
   
-   try {
-    const {companyId} = req.params;
-    const roles = await rolemodel.findById({companyId}).populate('company')
-    if (!roles) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.status(200).json(roles)
+  try {
+    const companyId = req.params.companyId;
+    const roles = await rolemodel.find({ companyId })
+    res.status(200).json(roles);
   } catch (error) {
-    console.log(error)
-    res.status(500).json({ message: 'Server Error' });
-   }
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
   
 }
+  export async function deleteRole(req,res){
+    try {
+      await rolemodel.deleteOne({_id: req.params.id})
+      return res.status(201).send({
+          message:'deleted',
+          status:true
+      })
+    } catch (error) {
+      return res.status(500).send(error)
+    }
+  }

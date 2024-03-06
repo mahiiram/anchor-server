@@ -10,9 +10,9 @@ companyrouter.route("/login").post(controller.login)
 
 companyrouter.route("/addrole").post(controller.addRole)
 companyrouter.route('/getuser/:email').get(controller.getUser)
-companyrouter.route('/getroles/:id').get(controller.getallcompanyRoles)
+companyrouter.route('/getroles/:companyId').get(controller.getallcompanyRoles)
 
-
+companyrouter.route('/deleteroles/:id').delete(controller.deleteRole)
 
 
 
